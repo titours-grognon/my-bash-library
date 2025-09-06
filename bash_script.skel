@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# (‾)-'"""""'-(‾)
+#  /           \
+# /   Ō  ●  Ō   \
+# \   "( - )"   /
+#  '-.._____..-'
+
+#+--------+#
+#| *INFO* |#
+#+--------+#
+
+#+-----------------+#
+#| *CONFIGURATION* |#
+#+-----------------+#
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+declare TMP_DIR
+IFS_BACKUP="${IFS}"
+readonly IFS_BACKUP
+
+IFS=$'\n\t'
+
+declare TMP_DIR
+TMP_DIR=$(mktemp --directory)
+readonly TMP_DIR
+
+#+------------+#
+#| *FUNCTION* |#
+#+------------+#
+
+# shellcheck disable=SC2329
+function clean_script {
+    rm --recursive --force "${TMP_DIR}"
+    IFS="${IFS_BACKUP}"
+}
+
+#+--------+#
+#| *MAIN* |#
+#+--------+#
+
+trap clean_script EXIT
+
+exit 0
