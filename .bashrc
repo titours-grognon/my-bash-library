@@ -1,0 +1,84 @@
+# shellcheck disable=SC2148
+# (‾)-'"""""'-(‾)
+#  /           \
+# /   Ō  ●  Ō   \
+# \   "( - )"   /
+#  '-.._____..-'
+
+#+----------+#
+#| *CUSTOM* |#
+#+----------+#
+# Add color to « man »
+if [[ $(command -v most) ]]
+then 
+    export PAGER=most
+fi
+
+# Allow to manage window size
+shopt -s checkwinsize
+
+# Allow to use « ** » for recursive search
+shopt -s globstar
+
+# Don't keep duplicates and empty lines in the history
+HISTCONTROL=ignoredups:ignorespace
+
+# Increase history size
+HISTSIZE=100000
+
+# Improve the display on multiple lines
+PS2="[CONTINUE] --> "
+export PS2
+
+# Improve the display of « SELECT »
+PS3="[SELECT YOUR CHOICE] > "
+export PS3
+
+# Improve the display on debug mode
+PS4="-[DEBUG] ${0} -<>"
+export PS4
+
+# Configuring the Git environment
+if [[ $(command -v git) ]]
+then 
+    export GIT_PS1_SHOWDIRTYSTATE=1
+    export GIT_PS1_SHOWSTASHSTATE=1
+    export GIT_PS1_SHOWUNTRACKEDFILES=1
+
+    if [[ -f /etc/bash_completion.d/git-prompt ]]
+    then
+        # shellcheck source=/dev/null
+        source /etc/bash_completion.d/git-prompt
+    fi
+fi
+
+if [[ $(command -v starship) ]]
+then
+    eval "$(starship init bash)"
+else
+    # shellcheck source=/dev/null
+    source .bash_custom_function
+    PS1_INFO="\
+\$(__display_end_of_last_command)\
+\$(__display_type_connection)\
+\$(__display_current_dir)\\n\
+\$(__display_return_code)\
+\$(__display_git_branch)\
+"
+
+    PS1_PROMPT_USER="\
+\$(__style BG_BLACK FG_CYAN BOLD) \\$ \$(__style)"
+
+    PS1="${PS1_INFO}${PS1_PROMPT_USER}"
+
+    # shellcheck disable=SC2090
+    export PS1
+fi
+
+if [[ $(command -v carapace) ]]
+then
+    # Optional
+    export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
+    # shellcheck source=/dev/null
+    source <(carapace _carapace)
+fi

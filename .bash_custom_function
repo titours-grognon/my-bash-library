@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# (‾)-'"""""'-(‾)
+#  /           \
+# /   Ō  ●  Ō   \
+# \   "( - )"   /
+#  '-.._____..-'
+
+#+------------+#
+#| *FUNCTION* |#
+#+------------+#
+
+# A splash of color in your terminal
+function __style() {
+    # shellcheck disable=SC2034
+    {   
+        BG_BLACK="40"
+        BG_RED="41"
+        BG_GREEN="42"
+        BG_YELLOW="43"
+        BG_BLUE="44"
+        BG_MAGENTA="45"
+        BG_CYAN="46"
+        BG_WHITE="47"
+        BG_RESET="49"
+
+        FG_BLACK="30"
+        FG_RED="31"
+        FG_GREEN="32"
+        FG_YELLOW="33"
+        FG_BLUE="34"
+        FG_MAGENTA="35"
+        FG_CYAN="36"
+        FG_WHITE="97"
+        FG_RESET="39"
+
+        BOLD="1"
+        DIM="2"
+        ITALIC="3"
+        UNDERLINE="4"
+        RESET="0"
+    }
+
+    case ${#} in
+        0)
+            echo -en "\001\033[0m\002"
+            ;;
+        1)
+            echo -en "\001\033[${!1}m\002"
+            ;;
+        2)
+            echo -en "\001\033[${!1};${!2}m\002"
+            ;;
+        3)
+            echo -en "\001\033[${!1};${!2};${!3}m\002"
+            ;;
+        *)
+            echo -en "\001\033e[0m\002"
+            ;;
+    esac
+}
+
+function __display_end_of_last_command() {
+    local TIMESTAMP
+    TIMESTAMP="[$(date "+%Y-%m-%d %H:%M:%S")]"
+    echo -e "At$(__style BG_BLACK BOLD) ${TIMESTAMP} $(__style)"
+}
+
+function __display_type_connection() {
+    if [[ -n "${SSH_CLIENT}" ]]
+    then
+        echo "on$(__style BG_BLACK FG_CYAN) SSH : $(command hostname) $(__style)"
+    else
+        echo "on$(__style BG_BLACK FG_CYAN) $(command hostname) $(__style)"
+    fi
+}
+
+function __display_current_dir() {
+    echo " in$(__style BG_BLUE FG_WHITE BOLD) $(command -p pwd -P) $(__style)"
+}
+
+# A little happiness for your command line
+function __display_return_code() {
+    local RC="$?"
+    if [[ ${RC} == 0 ]]
+    then
+        echo "$(__style BG_BLACK FG_GREEN) :) $(__style)"
+        # Emoticône
+        # echo -e "$(__style BG_GREEN)  \\U1F642 $(__style)"
+    else
+        echo "$(__style BG_BLACK FG_RED) :( $(__style)"
+        # Emoticône
+        # echo -e "$(__style BG_RED)  \\U1F641 $(__style)"
+    fi
+}
+
+function __display_git_branch() {
+    local GIT_BRANCH
+    if [[ $(command -v git) ]] && command git symbolic-ref HEAD >/dev/null 2>&1
+    then
+        GIT_BRANCH="$(command git symbolic-ref --short HEAD)"
+        echo -en "$(__style BG_RED FG_WHITE BOLD) (${GIT_BRANCH}) $(__style)"
+    else
+        echo ""
+    fi
+}
