@@ -1,0 +1,20 @@
+# shellcheck disable=SC2148
+# (‾)-'"""""'-(‾)
+#  /           \
+# /   Ō  ●  Ō   \
+# \   "( - )"   /
+#  '-.._____..-'
+# readline settings
+
+# Be 8 bit clean.
+bind "set meta-flag On"
+bind "set input-meta On"
+bind "set output-meta On"
+bind "set convert-meta Off"
+
+# Make autocompletion case insensitive and display suggestions
+bind "set completion-ignore-case On"
+bind "set show-all-if-ambiguous On"
+
+# Add 'sudo' at the beginning of the line
+bind '"\es": "\C-asudo \C-e"'

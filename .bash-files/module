@@ -1,0 +1,11 @@
+# shellcheck disable=SC2148
+# (‾)-'"""""'-(‾)
+#  /           \
+# /   Ō  ●  Ō   \
+# \   "( - )"   /
+#  '-.._____..-'
+
+# shellcheck source=/dev/null
+source ~/.bash-files/inputrc
+source ~/.bash-files/function
+source ~/.bash-files/custom
