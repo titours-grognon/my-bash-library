@@ -27,6 +27,7 @@ readonly TMP_DIR
 
 declare SCRIPT_PATH
 SCRIPT_PATH=$(command dirname "${BASH_SOURCE[0]}")
+# shellcheck disable=SC2034
 readonly SCRIPT_PATH
 
 declare SCRIPT_NAME
@@ -39,16 +40,16 @@ IFS=$'\n\t'
 #| FUNCTION |
 #+----------+
 
-# shellcheck disable=SC2329
+# shellcheck disable=SC2317,SC2329
 function __clean-script {
     rm --recursive --force "${TMP_DIR}"
     IFS="${IFS_BACKUP}"
-    echo -e "⌂ END OF SCRIPT: ${SCRIPT_NAME}"
+    __display-message -t "" -m "−−− END OF SCRIPT: ${SCRIPT_NAME} −−−"
 }
 
 # A splash of color in your terminal
 function __style() {
-    # shellcheck disable=SC2034
+    # shellcheck disable=SC2034,SC2317
     {
         BG_BLACK="40"
         BG_RED="41"
@@ -77,6 +78,7 @@ function __style() {
         RESET="0"
     }
 
+    # shellcheck disable=SC2317
     case ${#} in
         0)
             echo -en "\001\033[0m\002"
@@ -96,6 +98,7 @@ function __style() {
     esac
 }
 
+# shellcheck disable=SC2317
 function __display-message {
     local OPTIND=1
     local OPTARG=""
@@ -119,7 +122,7 @@ function __display-message {
                 ;;
             \?)
                 echo "${FUNCNAME[0]}"
-                exit 1
+                # exit 1
         esac
     done
 
@@ -137,7 +140,7 @@ function __display-message {
             display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_GREEN) ✓ ${msg}\n$(__style)"
             ;;
         *)
-            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style)$(__style ITALIC UNDERLINE) − ${msg}\n$(__style)"
+            display_message_output="$(__style)$(__style BOLD DIM ITALIC)${msg}\n$(__style)"
             ;;
     esac
 
@@ -152,6 +155,6 @@ function __display-message {
 
 trap __clean-script EXIT
 
-echo -e "⌂ BEGIN SCRIPT: ${SCRIPT_NAME}"
+__display-message -t "" -m "−−− BEGIN SCRIPT: ${SCRIPT_NAME} −−−"
 
 exit 0
