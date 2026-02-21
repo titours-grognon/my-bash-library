@@ -5,13 +5,13 @@
 # \   "( - )"   /
 #  '-.._____..-'
 
-#+--------+#
-#| *INFO* |#
-#+--------+#
+#+------+
+#| INFO |
+#+------+
 
-#+-----------------+#
-#| *CONFIGURATION* |#
-#+-----------------+#
+#+---------------+
+#| CONFIGURATION |
+#+---------------+
 
 set -o errexit
 set -o nounset
@@ -21,26 +21,137 @@ declare TMP_DIR
 IFS_BACKUP="${IFS}"
 readonly IFS_BACKUP
 
-IFS=$'\n\t'
-
 declare TMP_DIR
-TMP_DIR=$(mktemp --directory)
+TMP_DIR=$(command mktemp --directory)
 readonly TMP_DIR
 
-#+------------+#
-#| *FUNCTION* |#
-#+------------+#
+declare SCRIPT_PATH
+SCRIPT_PATH=$(command dirname "${BASH_SOURCE[0]}")
+readonly SCRIPT_PATH
+
+declare SCRIPT_NAME
+SCRIPT_NAME=$(command basename "${BASH_ARGV0}")
+readonly SCRIPT_NAME
+
+IFS=$'\n\t'
+
+#+----------+
+#| FUNCTION |
+#+----------+
 
 # shellcheck disable=SC2329
-function clean_script {
+function __clean-script {
     rm --recursive --force "${TMP_DIR}"
     IFS="${IFS_BACKUP}"
+    echo -e "⌂ END OF SCRIPT: ${SCRIPT_NAME}"
 }
 
-#+--------+#
-#| *MAIN* |#
-#+--------+#
+# A splash of color in your terminal
+function __style() {
+    # shellcheck disable=SC2034
+    {
+        BG_BLACK="40"
+        BG_RED="41"
+        BG_GREEN="42"
+        BG_YELLOW="43"
+        BG_BLUE="44"
+        BG_MAGENTA="45"
+        BG_CYAN="46"
+        BG_WHITE="47"
+        BG_RESET="49"
 
-trap clean_script EXIT
+        FG_BLACK="30"
+        FG_RED="31"
+        FG_GREEN="32"
+        FG_YELLOW="33"
+        FG_BLUE="34"
+        FG_MAGENTA="35"
+        FG_CYAN="36"
+        FG_WHITE="97"
+        FG_RESET="39"
+
+        BOLD="1"
+        DIM="2"
+        ITALIC="3"
+        UNDERLINE="4"
+        RESET="0"
+    }
+
+    case ${#} in
+        0)
+            echo -en "\001\033[0m\002"
+            ;;
+        1)
+            echo -en "\001\033[${!1}m\002"
+            ;;
+        2)
+            echo -en "\001\033[${!1};${!2}m\002"
+            ;;
+        3)
+            echo -en "\001\033[${!1};${!2};${!3}m\002"
+            ;;
+        *)
+            echo -en "\001\033e[0m\002"
+            ;;
+    esac
+}
+
+function __display-message {
+    local OPTIND=1
+    local OPTARG=""
+
+    local type_msg=""
+    local msg=""
+    local timestamp=""
+    local display_message_output=""
+
+    while getopts "t:m:l" OPTIONS
+    do
+        case ${OPTIONS} in
+            t)
+                type_msg="${OPTARG}"
+                ;;
+            m)
+                msg="${OPTARG}"
+                ;;
+            l)
+                timestamp="[$(date +"%F %T")]"
+                ;;
+            \?)
+                echo "${FUNCNAME[0]}"
+                exit 1
+        esac
+    done
+
+    case $type_msg in
+        ALERT)
+            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_YELLOW) △ ${msg}\n$(__style)"
+            ;;
+        ERROR)
+            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_RED) ✗ ${msg}\n$(__style)"
+            ;;
+        INFO)
+            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_WHITE) ● ${msg}\n$(__style)"
+            ;;
+        SUCCESS)
+            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_GREEN) ✓ ${msg}\n$(__style)"
+            ;;
+        *)
+            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style)$(__style ITALIC UNDERLINE) − ${msg}\n$(__style)"
+            ;;
+    esac
+
+    echo -en "${display_message_output}"
+
+    return 0
+}
+
+#+------+
+#| MAIN |
+#+------+
+
+trap __clean-script EXIT
+
+echo -e "⌂ BEGIN SCRIPT: ${SCRIPT_NAME}"
 
 exit 0
