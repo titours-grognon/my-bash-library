@@ -40,13 +40,6 @@ IFS=$'\n\t'
 #| FUNCTION |
 #+----------+
 
-# shellcheck disable=SC2317,SC2329
-function __clean-script {
-    rm --recursive --force "${TMP_DIR}"
-    IFS="${IFS_BACKUP}"
-    __display-message -t "" -m "−−− END OF SCRIPT: ${SCRIPT_NAME} −−−"
-}
-
 # A splash of color in your terminal
 function __style() {
     # shellcheck disable=SC2034,SC2317
@@ -104,7 +97,7 @@ function __display-message {
     local OPTARG=""
 
     local type_msg=""
-    local msg=""
+    local msg="(Default message) In progress..."
     local timestamp=""
     local display_message_output=""
 
@@ -120,15 +113,20 @@ function __display-message {
             l)
                 timestamp="[$(date +"%F %T")]"
                 ;;
+            :)
+                __display-message -t "ERROR" -m "-${OPTARG}: requires an argument"
+                exit 1
+                ;;
             \?)
-                echo "${FUNCNAME[0]}"
-                # exit 1
+                __display-message -t "ERROR" -m "-${OPTARG}: unknown option for ${FUNCNAME[0]}"
+                exit 1
+                ;;
         esac
     done
 
     case $type_msg in
         ALERT)
-            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_YELLOW) △ ${msg}\n$(__style)"
+            display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_YELLOW) ∆ ${msg}\n$(__style)"
             ;;
         ERROR)
             display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_RED) ✗ ${msg}\n$(__style)"
@@ -140,7 +138,7 @@ function __display-message {
             display_message_output="$(__style)$(__style BOLD)${timestamp}$(__style FG_GREEN) ✓ ${msg}\n$(__style)"
             ;;
         *)
-            display_message_output="$(__style)$(__style BOLD DIM ITALIC)${msg}\n$(__style)"
+            display_message_output="$(__style)$(__style BOLD DIM UNDERLINE)${msg}\n$(__style)"
             ;;
     esac
 
@@ -149,12 +147,47 @@ function __display-message {
     return 0
 }
 
+# shellcheck disable=SC2317,SC2329
+function __clean-script {
+    rm --recursive --force "${TMP_DIR}"
+    IFS="${IFS_BACKUP}"
+    __display-message -m "∟ END OF SCRIPT: ${SCRIPT_NAME}"
+}
+
 #+------+
 #| MAIN |
 #+------+
 
 trap __clean-script EXIT
 
-__display-message -t "" -m "−−− BEGIN SCRIPT: ${SCRIPT_NAME} −−−"
+__display-message -m "∟ BEGIN SCRIPT: ${SCRIPT_NAME}"
+
+#+-------------------------+
+#| Manage script arguments |
+#+-------------------------+
+# declare OPTIND=1
+# declare OPTARG=""
+#
+# declare variables="${TMP_DIR}"
+#
+# while getopts ":v:" OPTIONS
+# do
+#     case ${OPTIONS} in
+#         v)
+#             variables="${OPTARG}"
+#             ;;
+#         :)
+#             __display-message -t "ERROR" -m "-${OPTARG}: requires an argument"
+#             exit 1
+#             ;;
+#         \?)
+#             __display-message -t "ERROR" -m "-${OPTARG}: unknown option for $(basename "${BASH_ARGV0}")"
+#             exit 1
+#             ;;
+#     esac
+# done
+#
+# readonly variables
+#+-------------------------+
 
 exit 0
